@@ -1,8 +1,74 @@
 // ===== AI 副业工具箱 - Main JavaScript =====
 
 // ---- State ----
-let apiKey = localStorage.getItem('claude_api_key') || '';
+let aiConfig = {
+    provider: localStorage.getItem('ai_provider') || 'deepseek',
+    apiKey: localStorage.getItem('ai_api_key') || '',
+    endpoint: localStorage.getItem('ai_endpoint') || '',
+    model: localStorage.getItem('ai_model') || ''
+};
 let isGenerating = false;
+
+// ---- Provider Presets ----
+const providerPresets = {
+    deepseek: {
+        name: 'DeepSeek',
+        endpoint: 'https://api.deepseek.com/v1/chat/completions',
+        model: 'deepseek-chat',
+        keyHint: 'sk-...',
+        format: 'openai',
+        registerUrl: 'https://platform.deepseek.com/',
+        desc: '国产 · 推荐 · ¥1/百万tokens'
+    },
+    qwen: {
+        name: '通义千问',
+        endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+        model: 'qwen-plus',
+        keyHint: 'sk-...',
+        format: 'openai',
+        registerUrl: 'https://dashscope.aliyun.com/',
+        desc: '阿里云 · 新用户免费额度'
+    },
+    glm: {
+        name: '智谱GLM',
+        endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+        model: 'glm-4-flash',
+        keyHint: '...',
+        format: 'openai',
+        registerUrl: 'https://open.bigmodel.cn/',
+        desc: '国产 · 新用户送¥18'
+    },
+    claude: {
+        name: 'Claude',
+        endpoint: 'https://api.anthropic.com/v1/messages',
+        model: 'claude-sonnet-4-6',
+        keyHint: 'sk-ant-...',
+        format: 'anthropic',
+        registerUrl: 'https://console.anthropic.com/',
+        desc: 'Anthropic · 需翻墙'
+    },
+    custom: {
+        name: '自定义',
+        endpoint: '',
+        model: '',
+        keyHint: '输入你的 Key',
+        format: 'openai',
+        registerUrl: '',
+        desc: '自定义 API 地址和模型'
+    }
+};
+
+function getPreset() {
+    return providerPresets[aiConfig.provider] || providerPresets.deepseek;
+}
+
+function getEndpoint() {
+    return aiConfig.endpoint || getPreset().endpoint;
+}
+
+function getModel() {
+    return aiConfig.model || getPreset().model;
+}
 
 // ---- Prompt Library Data ----
 const promptLibrary = [
@@ -273,47 +339,95 @@ function initTabs() {
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const targetTab = btn.dataset.tab;
-
-            // Update active states
             tabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
             document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
             document.getElementById(`panel-${targetTab}`).classList.add('active');
         });
     });
 }
 
-// ===== API Key Management =====
+// ===== API Configuration Management =====
 function initApiKey() {
-    const input = document.getElementById('apiKey');
+    const providerSel = document.getElementById('aiProvider');
+    const keyInput = document.getElementById('apiKey');
+    const endpointInput = document.getElementById('apiEndpoint');
+    const modelInput = document.getElementById('apiModel');
     const saveBtn = document.getElementById('saveApiKey');
-    const status = document.getElementById('apiStatus');
 
-    if (apiKey) {
-        input.value = apiKey;
-        showApiStatus('success', '✅ API Key 已保存，可以使用所有工具');
+    // Restore saved configuration
+    providerSel.value = aiConfig.provider;
+    if (aiConfig.apiKey) {
+        keyInput.value = aiConfig.apiKey;
+    }
+    updateProviderUI();
+
+    // Provider change
+    providerSel.addEventListener('click', () => {
+        setTimeout(() => {
+            aiConfig.provider = providerSel.value;
+            updateProviderUI();
+        }, 10);
+    });
+    providerSel.addEventListener('change', () => {
+        aiConfig.provider = providerSel.value;
+        updateProviderUI();
+    });
+
+    // Save button
+    saveBtn.addEventListener('click', () => {
+        const key = keyInput.value.trim();
+        if (!key) {
+            showApiStatus('error', '❌ 请输入 API Key');
+            return;
+        }
+        aiConfig.provider = providerSel.value;
+        aiConfig.apiKey = key;
+        aiConfig.endpoint = endpointInput.value.trim();
+        aiConfig.model = modelInput.value.trim();
+
+        localStorage.setItem('ai_provider', aiConfig.provider);
+        localStorage.setItem('ai_api_key', aiConfig.apiKey);
+        localStorage.setItem('ai_endpoint', aiConfig.endpoint);
+        localStorage.setItem('ai_model', aiConfig.model);
+
+        const preset = getPreset();
+        showApiStatus('success', '✅ 已保存！使用 ' + preset.name + ' · 模型: ' + getModel());
+    });
+}
+
+function updateProviderUI() {
+    const preset = getPreset();
+    const keyInput = document.getElementById('apiKey');
+    const endpointInput = document.getElementById('apiEndpoint');
+    const modelInput = document.getElementById('apiModel');
+    const isCustom = aiConfig.provider === 'custom';
+
+    keyInput.placeholder = '输入 ' + preset.name + ' API Key（' + preset.keyHint + '）';
+
+    endpointInput.style.display = isCustom ? 'block' : 'none';
+    modelInput.style.display = isCustom ? 'block' : 'none';
+
+    if (!isCustom) {
+        endpointInput.value = preset.endpoint;
+        modelInput.value = preset.model;
     }
 
-    saveBtn.addEventListener('click', () => {
-        const key = input.value.trim();
-        if (!key) {
-            showApiStatus('error', '❌ 请输入有效的 API Key');
-            return;
-        }
-        if (!key.startsWith('sk-ant-')) {
-            showApiStatus('error', '❌ API Key 格式不正确，应以 sk-ant- 开头');
-            return;
-        }
-        apiKey = key;
-        localStorage.setItem('claude_api_key', key);
-        showApiStatus('success', '✅ API Key 已保存！现在可以使用所有工具了');
-    });
+    // Show/hide registration links
+    const dsLink = document.querySelector('.ds-link');
+    const qwenLink = document.querySelector('.qwen-link');
+    if (dsLink) dsLink.style.display = (aiConfig.provider === 'deepseek') ? 'inline' : 'none';
+    if (qwenLink) qwenLink.style.display = (aiConfig.provider === 'qwen') ? 'inline' : 'none';
+
+    // Show saved status
+    if (aiConfig.apiKey) {
+        showApiStatus('success', '✅ 已配置 ' + preset.name + ' · 模型: ' + getModel());
+    }
 }
 
 function showApiStatus(type, message) {
     const status = document.getElementById('apiStatus');
-    status.className = `api-status ${type}`;
+    status.className = 'api-status ' + type;
     status.textContent = message;
 }
 
@@ -345,42 +459,69 @@ function initCopyButtons() {
     });
 }
 
-// ===== Claude API Call =====
-async function callClaude(systemPrompt, userMessage, maxTokens = 4000) {
-    if (!apiKey) {
-        showApiStatus('error', '❌ 请先输入并保存你的 Anthropic API Key');
+// ===== AI API Call (Multi-Provider) =====
+async function callAI(systemPrompt, userMessage, maxTokens = 4000) {
+    if (!aiConfig.apiKey) {
+        showApiStatus('error', '❌ 请先选择 AI 服务并输入 API Key');
         return null;
     }
 
+    const preset = getPreset();
+    const endpoint = getEndpoint();
+    const model = getModel();
+
+    if (!endpoint) {
+        return '❌ 请填写 API 地址';
+    }
+
     try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'anthropic-version': '2023-06-01',
-                'anthropic-dangerous-direct-browser-access': 'true'
-            },
-            body: JSON.stringify({
-                model: 'claude-sonnet-4-6',
-                max_tokens: maxTokens,
-                system: systemPrompt,
-                messages: [
-                    { role: 'user', content: userMessage }
-                ]
-            })
-        });
+        let response;
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error?.message || `API 请求失败 (${response.status})`);
+        if (preset.format === 'anthropic') {
+            // Claude uses Anthropic's native format
+            response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': aiConfig.apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    max_tokens: maxTokens,
+                    system: systemPrompt,
+                    messages: [{ role: 'user', content: userMessage }]
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error?.message || 'API 错误 (' + response.status + ')');
+            return data.content[0].text;
+        } else {
+            // All Chinese AIs use OpenAI-compatible format
+            response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + aiConfig.apiKey
+                },
+                body: JSON.stringify({
+                    model: model,
+                    max_tokens: maxTokens,
+                    temperature: 0.7,
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userMessage }
+                    ]
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error?.message || 'API 错误 (' + response.status + ')');
+            return data.choices[0].message.content;
         }
-
-        const data = await response.json();
-        return data.content[0].text;
     } catch (error) {
-        console.error('Claude API Error:', error);
-        return `❌ 生成失败: ${error.message}\n\n请检查：\n1. API Key 是否正确\n2. 账户是否有余额\n3. 网络连接是否正常`;
+        console.error('AI API Error:', error);
+        return '❌ 生成失败: ' + error.message + '\n\n请检查：\n1. API Key 是否正确\n2. 账户是否有余额\n3. API 地址和模型名是否匹配';
     }
 }
 
@@ -426,7 +567,7 @@ async function generateCopy() {
 
 开始吧！`;
 
-    const result = await callClaude(systemPrompt, userMessage, 4000);
+    const result = await callAI(systemPrompt, userMessage, 4000);
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
@@ -480,7 +621,7 @@ async function generateScript() {
 
 请写出完整可拍摄的脚本！`;
 
-    const result = await callClaude(systemPrompt, userMessage, 4000);
+    const result = await callAI(systemPrompt, userMessage, 4000);
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
@@ -539,7 +680,7 @@ ${content}
 
 请直接输出优化后的完整简历：`;
 
-    const result = await callClaude(systemPrompt, userMessage, 4000);
+    const result = await callAI(systemPrompt, userMessage, 4000);
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
@@ -591,7 +732,7 @@ Emoji使用：${emoji}
 
 直接输出标题列表：`;
 
-    const result = await callClaude(systemPrompt, userMessage, 3000);
+    const result = await callAI(systemPrompt, userMessage, 3000);
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
