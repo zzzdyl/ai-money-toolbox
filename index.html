@@ -51,12 +51,24 @@
             <div class="setup-card">
                 <div class="setup-header">
                     <span class="setup-icon">🔑</span>
-                    <h3>连接你的 Claude API</h3>
+                    <h3>连接 AI 服务</h3>
                 </div>
                 <div class="setup-body">
-                    <input type="password" id="apiKey" class="api-input" placeholder="输入你的 Anthropic API Key (sk-ant-...)">
-                    <button id="saveApiKey" class="btn btn-primary">保存密钥</button>
-                    <a href="https://console.anthropic.com/" target="_blank" class="api-link">还没有API Key？点此获取 →</a>
+                    <select id="aiProvider" class="provider-select">
+                        <option value="deepseek">DeepSeek（国产 · 推荐 · ¥1/百万tokens）</option>
+                        <option value="qwen">通义千问（阿里云 · 新用户免费额度）</option>
+                        <option value="glm">智谱 GLM（国产 · 新用户送¥18）</option>
+                        <option value="claude">Claude（Anthropic · 需翻墙）</option>
+                        <option value="custom">自定义 API</option>
+                    </select>
+                    <input type="password" id="apiKey" class="api-input" placeholder="输入 API Key">
+                    <input type="text" id="apiEndpoint" class="api-input api-endpoint" placeholder="API 地址（自动填写，也可自定义）" style="display:none;">
+                    <input type="text" id="apiModel" class="api-input api-model" placeholder="模型名称（自动填写）" style="display:none;">
+                    <button id="saveApiKey" class="btn btn-primary">保存设置</button>
+                </div>
+                <div class="setup-links">
+                    <a href="https://platform.deepseek.com/" target="_blank" class="api-link ds-link">DeepSeek注册 →</a>
+                    <a href="https://dashscope.aliyun.com/" target="_blank" class="api-link qwen-link">通义千问注册 →</a>
                 </div>
                 <div id="apiStatus" class="api-status"></div>
             </div>
