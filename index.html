@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 副业工具箱 - 用AI帮你赚钱</title>
+    <meta name="description" content="一站式AI副业工具箱：营销文案生成、短视频脚本、简历优化、小红书标题、AI提示词库。用Claude AI帮你快速接单赚钱。">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">AI 副业工具箱</span>
+            </div>
+            <p class="header-subtitle">用 Claude AI 帮你接单赚钱 · 效率提升 10 倍</p>
+        </div>
+    </header>
+
+    <!-- Hero Stats -->
+    <section class="hero-stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">¥3,000+</div>
+                    <div class="stat-label">月收入潜力</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">10x</div>
+                    <div class="stat-label">效率提升</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5+</div>
+                    <div class="stat-label">赚钱工具</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">即时</div>
+                    <div class="stat-label">开始接单</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Key Setup -->
+    <section class="api-setup">
+        <div class="container">
+            <div class="setup-card">
+                <div class="setup-header">
+                    <span class="setup-icon">🔑</span>
+                    <h3>连接你的 Claude API</h3>
+                </div>
+                <div class="setup-body">
+                    <input type="password" id="apiKey" class="api-input" placeholder="输入你的 Anthropic API Key (sk-ant-...)">
+                    <button id="saveApiKey" class="btn btn-primary">保存密钥</button>
+                    <a href="https://console.anthropic.com/" target="_blank" class="api-link">还没有API Key？点此获取 →</a>
+                </div>
+                <div id="apiStatus" class="api-status"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool Tabs -->
+    <section class="tools-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🛠️ 选择赚钱工具</h2>
+                <p>每个工具都集成了 Claude AI，帮你快速产出高质量内容</p>
+            </div>
+
+            <div class="tool-tabs">
+                <button class="tab-btn active" data-tab="copywriter">
+                    <span class="tab-icon">✍️</span>
+                    <span class="tab-label">营销文案</span>
+                </button>
+                <button class="tab-btn" data-tab="video-script">
+                    <span class="tab-icon">🎬</span>
+                    <span class="tab-label">短视频脚本</span>
+                </button>
+                <button class="tab-btn" data-tab="resume">
+                    <span class="tab-icon">📄</span>
+                    <span class="tab-label">简历优化</span>
+                </button>
+                <button class="tab-btn" data-tab="xhs-title">
+                    <span class="tab-icon">🔥</span>
+                    <span class="tab-label">小红书标题</span>
+                </button>
+                <button class="tab-btn" data-tab="prompts">
+                    <span class="tab-icon">📚</span>
+                    <span class="tab-label">提示词库</span>
+                </button>
+            </div>
+
+            <!-- Tool 1: Marketing Copy Generator -->
+            <div class="tool-panel active" id="panel-copywriter">
+                <div class="tool-layout">
+                    <div class="tool-form">
+                        <h3>✍️ AI 营销文案生成器</h3>
+                        <p class="tool-desc">接单价 ¥50-500/篇 · 用这个工具 5 分钟搞定一篇</p>
+
+                        <div class="form-group">
+                            <label>产品/服务名称</label>
+                            <input type="text" id="cw-product" placeholder="例如：智能扫地机器人">
+                        </div>
+                        <div class="form-group">
+                            <label>目标受众</label>
+                            <input type="text" id="cw-audience" placeholder="例如：25-35岁都市白领女性">
+                        </div>
+                        <div class="form-group">
+                            <label>文案类型</label>
+                            <select id="cw-type">
+                                <option value="朋友圈">朋友圈文案</option>
+                                <option value="公众号">公众号文章</option>
+                                <option value="产品详情页">电商详情页</option>
+                                <option value="广告语">广告语/Slogan</option>
+                                <option value="小红书种草">小红书种草文案</option>
+                                <option value="销售信">销售信/推销文案</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>核心卖点（可选）</label>
+                            <textarea id="cw-features" rows="3" placeholder="例如：自动规划路线、扫拖一体、续航3小时、APP远程控制"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>风格要求（可选）</label>
+                            <select id="cw-tone">
+                                <option value="专业">专业权威</option>
+                                <option value="亲切">亲切温暖</option>
+                                <option value="幽默">幽默风趣</option>
+                                <option value="高端">高端奢华</option>
+                                <option value="年轻">年轻潮流</option>
+                                <option value="情感">情感共鸣</option>
+                            </select>
+                        </div>
+                        <button id="generate-copy" class="btn btn-generate">🚀 AI 生成文案</button>
+                    </div>
+                    <div class="tool-output">
+                        <div class="output-header">
+                            <h4>生成结果</h4>
+                            <button class="btn-copy" data-target="copywriter-output">📋 复制</button>
+                        </div>
+                        <div id="copywriter-output" class="output-content">
+                            <div class="output-placeholder">
+                                <span class="placeholder-icon">✨</span>
+                                <p>填写左侧信息，点击"AI 生成文案"</p>
+                                <p class="placeholder-hint">Claude AI 将为你生成专业级营销文案</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool 2: Short Video Script Generator -->
+            <div class="tool-panel" id="panel-video-script">
+                <div class="tool-layout">
+                    <div class="tool-form">
+                        <h3>🎬 短视频脚本生成器</h3>
+                        <p class="tool-desc">接单价 ¥20-200/条 · 适配抖音/快手/视频号</p>
+
+                        <div class="form-group">
+                            <label>视频主题</label>
+                            <input type="text" id="vs-topic" placeholder="例如：如何挑选适合自己的口红色号">
+                        </div>
+                        <div class="form-group">
+                            <label>视频平台</label>
+                            <select id="vs-platform">
+                                <option value="抖音">抖音</option>
+                                <option value="快手">快手</option>
+                                <option value="视频号">视频号</option>
+                                <option value="小红书">小红书视频</option>
+                                <option value="B站">B站</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>视频时长</label>
+                            <select id="vs-duration">
+                                <option value="30秒">30秒 (短)</option>
+                                <option value="60秒">60秒 (标准)</option>
+                                <option value="3分钟">3分钟 (中长)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>目标受众</label>
+                            <input type="text" id="vs-audience" placeholder="例如：18-25岁美妆爱好者">
+                        </div>
+                        <div class="form-group">
+                            <label>视频风格</label>
+                            <select id="vs-style">
+                                <option value="教程教学">教程/教学</option>
+                                <option value="好物测评">好物测评</option>
+                                <option value="Vlog日常">Vlog日常</option>
+                                <option value="剧情段子">剧情段子</option>
+                                <option value="知识科普">知识科普</option>
+                                <option value="情感故事">情感故事</option>
+                            </select>
+                        </div>
+                        <button id="generate-script" class="btn btn-generate">🎬 AI 生成脚本</button>
+                    </div>
+                    <div class="tool-output">
+                        <div class="output-header">
+                            <h4>生成结果</h4>
+                            <button class="btn-copy" data-target="video-output">📋 复制</button>
+                        </div>
+                        <div id="video-output" class="output-content">
+                            <div class="output-placeholder">
+                                <span class="placeholder-icon">🎥</span>
+                                <p>填写视频信息，点击"AI 生成脚本"</p>
+                                <p class="placeholder-hint">Claude AI 将生成带分镜、台词、时长的完整脚本</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool 3: Resume Optimizer -->
+            <div class="tool-panel" id="panel-resume">
+                <div class="tool-layout">
+                    <div class="tool-form">
+                        <h3>📄 AI 简历优化助手</h3>
+                        <p class="tool-desc">接单价 ¥30-200/份 · 帮求职者拿下心仪 Offer</p>
+
+                        <div class="form-group">
+                            <label>目标岗位</label>
+                            <input type="text" id="res-job" placeholder="例如：高级产品经理 / 前端开发工程师">
+                        </div>
+                        <div class="form-group">
+                            <label>目标行业</label>
+                            <input type="text" id="res-industry" placeholder="例如：互联网/电商/金融">
+                        </div>
+                        <div class="form-group">
+                            <label>工作年限</label>
+                            <select id="res-experience">
+                                <option value="应届生">应届生/实习</option>
+                                <option value="1-3年">1-3年</option>
+                                <option value="3-5年">3-5年</option>
+                                <option value="5-10年">5-10年</option>
+                                <option value="10年以上">10年以上</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>当前简历内容（粘贴原文）</label>
+                            <textarea id="res-content" rows="8" placeholder="请粘贴你的简历文本...&#10;&#10;包括：个人信息、教育背景、工作经历、项目经验、技能等"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>优化重点</label>
+                            <select id="res-focus">
+                                <option value="全面优化">全面优化</option>
+                                <option value="突出成果">突出量化成果</option>
+                                <option value="关键词优化">ATS关键词优化</option>
+                                <option value="简洁有力">简洁有力</option>
+                                <option value="经历包装">工作经历包装</option>
+                            </select>
+                        </div>
+                        <button id="generate-resume" class="btn btn-generate">📄 AI 优化简历</button>
+                    </div>
+                    <div class="tool-output">
+                        <div class="output-header">
+                            <h4>优化结果</h4>
+                            <button class="btn-copy" data-target="resume-output">📋 复制</button>
+                        </div>
+                        <div id="resume-output" class="output-content">
+                            <div class="output-placeholder">
+                                <span class="placeholder-icon">📝</span>
+                                <p>粘贴简历内容，点击"AI 优化简历"</p>
+                                <p class="placeholder-hint">Claude AI 将为你优化出ATS友好、结果导向的专业简历</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool 4: XHS Title Generator -->
+            <div class="tool-panel" id="panel-xhs-title">
+                <div class="tool-layout">
+                    <div class="tool-form">
+                        <h3>🔥 小红书爆款标题生成器</h3>
+                        <p class="tool-desc">接单价 ¥20-100/条 · 帮你客户的内容获得 10 倍曝光</p>
+
+                        <div class="form-group">
+                            <label>笔记主题</label>
+                            <input type="text" id="xhs-topic" placeholder="例如：夏日防晒霜测评">
+                        </div>
+                        <div class="form-group">
+                            <label>内容类型</label>
+                            <select id="xhs-type">
+                                <option value="好物推荐">好物推荐</option>
+                                <option value="经验分享">经验分享</option>
+                                <option value="穿搭护肤">穿搭/护肤</option>
+                                <option value="美食探店">美食探店</option>
+                                <option value="旅游攻略">旅游攻略</option>
+                                <option value="学习方法">学习方法</option>
+                                <option value="职场干货">职场干货</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>目标关键词（可选）</label>
+                            <input type="text" id="xhs-keywords" placeholder="例如：学生党、平价、性价比">
+                        </div>
+                        <div class="form-group">
+                            <label>标题数量</label>
+                            <select id="xhs-count">
+                                <option value="5">5条</option>
+                                <option value="10" selected>10条</option>
+                                <option value="20">20条</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Emoji偏好</label>
+                            <select id="xhs-emoji">
+                                <option value="大量">大量使用 emoji</option>
+                                <option value="适中" selected>适度使用 emoji</option>
+                                <option value="少量">少量使用 emoji</option>
+                            </select>
+                        </div>
+                        <button id="generate-xhs" class="btn btn-generate">🔥 AI 生成标题</button>
+                    </div>
+                    <div class="tool-output">
+                        <div class="output-header">
+                            <h4>生成结果</h4>
+                            <button class="btn-copy" data-target="xhs-output">📋 复制</button>
+                        </div>
+                        <div id="xhs-output" class="output-content">
+                            <div class="output-placeholder">
+                                <span class="placeholder-icon">🔥</span>
+                                <p>填写笔记信息，点击"AI 生成标题"</p>
+                                <p class="placeholder-hint">Claude AI 将生成带数据预估的爆款标题列表</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool 5: Prompt Library -->
+            <div class="tool-panel" id="panel-prompts">
+                <div class="prompts-layout">
+                    <div class="prompts-header">
+                        <h3>📚 AI 提示词库（可直接出售）</h3>
+                        <p class="tool-desc">闲鱼卖 ¥9.9-29.9/份的爆款产品 · 持续更新</p>
+                        <div class="prompt-filters">
+                            <button class="filter-btn active" data-filter="all">全部</button>
+                            <button class="filter-btn" data-filter="写作">写作</button>
+                            <button class="filter-btn" data-filter="营销">营销</button>
+                            <button class="filter-btn" data-filter="编程">编程</button>
+                            <button class="filter-btn" data-filter="设计">设计</button>
+                            <button class="filter-btn" data-filter="自媒体">自媒体</button>
+                        </div>
+                    </div>
+                    <div id="prompts-grid" class="prompts-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Monetize Section -->
+    <section class="monetize-section">
+        <div class="container">
+            <h2>💡 如何用这些工具赚钱？</h2>
+            <div class="monetize-grid">
+                <div class="monetize-card">
+                    <div class="monetize-number">01</div>
+                    <h4>闲鱼接单</h4>
+                    <p>在闲鱼发布"AI代写文案""简历优化""脚本代写"服务，用工具箱5分钟完成一单</p>
+                    <span class="price-tag">¥50-500/单</span>
+                </div>
+                <div class="monetize-card">
+                    <div class="monetize-number">02</div>
+                    <h4>猪八戒网接单</h4>
+                    <p>在猪八戒/一品威客投标文案类项目，用工具箱快速交付，好评率更高</p>
+                    <span class="price-tag">¥500-3000/项目</span>
+                </div>
+                <div class="monetize-card">
+                    <div class="monetize-number">03</div>
+                    <h4>出售提示词包</h4>
+                    <p>把提示词库打包成PDF/电子书，在闲鱼、淘宝、小红书挂链接出售</p>
+                    <span class="price-tag">¥9.9-29.9/份</span>
+                </div>
+                <div class="monetize-card">
+                    <div class="monetize-number">04</div>
+                    <h4>企业代运营</h4>
+                    <p>帮本地商家代运营小红书/抖音账号，批量生产内容，按月收费</p>
+                    <span class="price-tag">¥2000-5000/月</span>
+                </div>
+                <div class="monetize-card">
+                    <div class="monetize-number">05</div>
+                    <h4>定制化服务</h4>
+                    <p>针对客户需求提供一对一AI内容定制，客单价更高，复购率更高</p>
+                    <span class="price-tag">¥200-1000/次</span>
+                </div>
+                <div class="monetize-card">
+                    <div class="monetize-number">06</div>
+                    <h4>培训教学</h4>
+                    <p>教其他人使用AI工具提效，开线上课程或1v1咨询，知识变现</p>
+                    <span class="price-tag">¥199-999/人</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>🚀 AI 副业工具箱 · 用 Claude 帮你赚钱 · Powered by Anthropic Claude API</p>
+            <p class="footer-note">本工具帮助你提升效率，实际收入取决于你的运营和销售能力</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
