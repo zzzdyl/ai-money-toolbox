@@ -571,6 +571,8 @@ async function generateCopy() {
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
+    } else {
+        output.innerHTML = '<div class="output-placeholder"><span class="placeholder-icon">⚠️</span><p>请先在顶部设置 API Key</p><p class="placeholder-hint">选择 AI 服务 → 输入 Key → 保存设置</p></div>';
     }
 
     isGenerating = false;
@@ -625,6 +627,8 @@ async function generateScript() {
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
+    } else {
+        output.innerHTML = '<div class="output-placeholder"><span class="placeholder-icon">⚠️</span><p>请先在顶部设置 API Key</p><p class="placeholder-hint">选择 AI 服务 → 输入 Key → 保存设置</p></div>';
     }
 
     isGenerating = false;
@@ -684,6 +688,8 @@ ${content}
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
+    } else {
+        output.innerHTML = '<div class="output-placeholder"><span class="placeholder-icon">⚠️</span><p>请先在顶部设置 API Key</p><p class="placeholder-hint">选择 AI 服务 → 输入 Key → 保存设置</p></div>';
     }
 
     isGenerating = false;
@@ -736,6 +742,8 @@ Emoji使用：${emoji}
 
     if (result) {
         output.innerHTML = `<div class="generated-content">${escapeHtml(result)}</div>`;
+    } else {
+        output.innerHTML = '<div class="output-placeholder"><span class="placeholder-icon">⚠️</span><p>请先在顶部设置 API Key</p><p class="placeholder-hint">选择 AI 服务 → 输入 Key → 保存设置</p></div>';
     }
 
     isGenerating = false;
